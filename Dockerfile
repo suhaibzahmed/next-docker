@@ -8,8 +8,8 @@ RUN npm install
 
 COPY prisma ./prisma
 RUN npx prisma generate
+
 COPY . .
-RUN npx prisma migrate deploy
 RUN npm run build 
 
 # Stage 2: Create the production image
@@ -21,8 +21,9 @@ WORKDIR /app
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma 
 COPY --from=builder /app/public ./public
-COPY prisma ./prisma 
+COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# Run migrations when container starts (not during build)
+CMD ["sh", "-c", "echo 'Waiting for database...' && sleep 10 && npx prisma migrate deploy && echo 'Starting application...' && node server.js"]
