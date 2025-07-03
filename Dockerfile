@@ -9,8 +9,8 @@ RUN npm install
 COPY prisma ./prisma
 RUN npx prisma generate
 COPY . .
-RUN npx prisma migrate deploy # Run migrations during build if possible, or keep in CMD for deployment
-RUN npm run build # This will create the .next/standalone folder
+RUN npx prisma migrate deploy
+RUN npm run build 
 
 # Stage 2: Create the production image
 FROM node:20-alpine
@@ -25,4 +25,4 @@ COPY prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"] # 'server.js' is the entry point for standalone
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
